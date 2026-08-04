@@ -2,8 +2,11 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Cria Tech &middot; Painel de Servicos</title>
+<meta name="theme-color" content="#0a0d14">
+<meta name="description" content="Painel interno da CriaTech para gestao de contratos, servicos e divisao financeira.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -12,37 +15,49 @@
 
 <div class="app">
 
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <!-- ===== SIDEBAR ===== -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <span class="brand-mark">CT</span>
-      <div>
-        <strong>Cria Tech</strong>
-        <small>gestao de servicos</small>
+      <img class="brand-logo" src="assets/logo.png" width="42" height="42" alt="Logo CriaTech">
+      <div class="brand-text">
+        <strong>CriaTech</strong>
+        <small>Gestao de servicos</small>
       </div>
     </div>
 
     <nav class="nav">
       <button class="nav-item active" data-view="dashboard">
-        <span class="dot"></span> Painel
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Painel
       </button>
       <button class="nav-item" data-view="novo">
-        <span class="dot"></span> Novo contrato
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M12 12v6M9 15h6"/></svg>
+        Novo contrato
       </button>
       <button class="nav-item" data-view="lista">
-        <span class="dot"></span> Contratos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        Contratos
       </button>
       <button class="nav-item" data-view="relatorio">
-        <span class="dot"></span> Relatorio
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        Relatorio
       </button>
     </nav>
 
-    <div class="split-signature">
-      <div class="split-label">DIVISAO PADRAO</div>
-      <div class="split-bar">
-        <div class="split-half vitor">VITOR<br><span>50%</span></div>
-        <div class="split-half lucas">LUCAS<br><span>50%</span></div>
+    <div class="sidebar-foot">
+      <div class="split-signature">
+        <div class="split-label">DIVISAO PADRAO</div>
+        <div class="split-bar">
+          <div class="split-half vitor">VITOR<br><span>50%</span></div>
+          <div class="split-half lucas">LUCAS<br><span>50%</span></div>
+        </div>
       </div>
+      <a class="sidebar-site" href="https://criatech.online" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg>
+        criatech.online
+      </a>
     </div>
   </aside>
 
@@ -50,8 +65,12 @@
   <main class="main">
 
     <header class="topbar">
-      <h1 id="view-title">Painel</h1>
-      <button class="btn-mobile-nav" id="btnMobileNav" aria-label="menu">☰</button>
+      <div>
+        <h1 id="view-title">Painel</h1>
+      </div>
+      <button class="btn-mobile-nav" id="btnMobileNav" aria-label="abrir menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
     </header>
 
     <!-- ---------- DASHBOARD ---------- -->
@@ -80,7 +99,7 @@
           <h2>Ultimos contratos</h2>
         </div>
         <div class="table-wrap">
-          <table id="tabelaRecentes">
+          <table id="tabelaRecentes" class="stack-mobile">
             <thead>
               <tr><th>Cliente</th><th>Servico</th><th>Valor</th><th>Status</th><th></th></tr>
             </thead>
@@ -196,7 +215,7 @@
           </div>
         </div>
         <div class="table-wrap">
-          <table id="tabelaLista">
+          <table id="tabelaLista" class="stack-mobile">
             <thead>
               <tr><th>Cliente</th><th>Servico</th><th>Periodo</th><th>Valor</th><th>Vitor</th><th>Lucas</th><th>Status</th><th>Acoes</th></tr>
             </thead>
@@ -241,7 +260,7 @@
           <h2>Por tipo de servico</h2>
         </div>
         <div class="table-wrap">
-          <table id="tabelaPorTipo">
+          <table id="tabelaPorTipo" class="stack-mobile">
             <thead><tr><th>Servico</th><th>Quantidade</th><th>Valor total</th></tr></thead>
             <tbody></tbody>
           </table>
