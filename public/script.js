@@ -4,7 +4,20 @@ const API = '/api';
 const navItems = document.querySelectorAll('.nav-item');
 const views = document.querySelectorAll('.view');
 const viewTitle = document.getElementById('view-title');
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
 const titles = { dashboard: 'Painel', novo: 'Novo contrato', lista: 'Contratos', relatorio: 'Relatorio' };
+
+function fecharMenuMobile() {
+  sidebar.classList.remove('open');
+  sidebarOverlay.classList.remove('show');
+  document.body.classList.remove('no-scroll');
+}
+function abrirMenuMobile() {
+  sidebar.classList.add('open');
+  sidebarOverlay.classList.add('show');
+  document.body.classList.add('no-scroll');
+}
 
 navItems.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -14,7 +27,7 @@ navItems.forEach(btn => {
     views.forEach(v => v.classList.add('hidden'));
     document.getElementById(`view-${target}`).classList.remove('hidden');
     viewTitle.textContent = titles[target];
-    document.querySelector('.sidebar').classList.remove('open');
+    fecharMenuMobile();
 
     if (target === 'dashboard') carregarDashboard();
     if (target === 'lista') carregarLista();
@@ -23,8 +36,9 @@ navItems.forEach(btn => {
 });
 
 document.getElementById('btnMobileNav').addEventListener('click', () => {
-  document.querySelector('.sidebar').classList.toggle('open');
+  sidebar.classList.contains('open') ? fecharMenuMobile() : abrirMenuMobile();
 });
+sidebarOverlay.addEventListener('click', fecharMenuMobile);
 
 // ---------- Utilitarios ----------
 function formatMoney(v) {
@@ -40,6 +54,11 @@ function toast(msg, isError = false) {
   t.classList.toggle('error', isError);
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3500);
+}
+function escapeHTML(str) {
+  return String(str ?? '').replace(/[&<>"']/g, s => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[s]));
 }
 const NOME_TIPO = { site: 'Site', sistema: 'Sistema', designer: 'Designer', midia: 'Midia' };
 
@@ -58,16 +77,16 @@ async function carregarDashboard() {
     tbody.innerHTML = '';
     const recentes = data.contratos.slice(0, 8);
     if (!recentes.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Nenhum contrato cadastrado ainda.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Nenhum contrato cadastrado ainda.</td></tr>';
     }
     recentes.forEach(c => {
       tbody.innerHTML += `
         <tr>
-          <td>${c.cliente_nome}</td>
-          <td>${NOME_TIPO[c.tipo_servico] || c.tipo_servico}</td>
-          <td>${formatMoney(c.valor_total)}</td>
-          <td><span class="badge ${c.status}">${c.status}</span></td>
-          <td><button class="link-btn" onclick="baixarPDF(${c.id})">PDF</button></td>
+          <td data-label="Cliente">${escapeHTML(c.cliente_nome)}</td>
+          <td data-label="Servico">${NOME_TIPO[c.tipo_servico] || c.tipo_servico}</td>
+          <td data-label="Valor">${formatMoney(c.valor_total)}</td>
+          <td data-label="Status"><span class="badge ${c.status}">${c.status}</span></td>
+          <td data-label=""><button class="link-btn" onclick="baixarPDF(${c.id})">PDF</button></td>
         </tr>`;
     });
   } catch (err) {
@@ -143,27 +162,27 @@ async function carregarLista() {
     tbody.innerHTML = '';
 
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="8" style="color:var(--muted)">Nenhum contrato encontrado.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">Nenhum contrato encontrado.</td></tr>';
       return;
     }
 
     rows.forEach(c => {
       tbody.innerHTML += `
         <tr>
-          <td>${c.cliente_nome}</td>
-          <td>${NOME_TIPO[c.tipo_servico] || c.tipo_servico}</td>
-          <td>${formatDate(c.periodo_inicio)} - ${formatDate(c.periodo_fim)}</td>
-          <td>${formatMoney(c.valor_total)}</td>
-          <td>${formatMoney(c.valor_vitor)}</td>
-          <td>${formatMoney(c.valor_lucas)}</td>
-          <td>
-            <select class="status-select" data-id="${c.id}" style="padding:4px 6px;font-size:12px;">
+          <td data-label="Cliente">${escapeHTML(c.cliente_nome)}</td>
+          <td data-label="Servico">${NOME_TIPO[c.tipo_servico] || c.tipo_servico}</td>
+          <td data-label="Periodo">${formatDate(c.periodo_inicio)} - ${formatDate(c.periodo_fim)}</td>
+          <td data-label="Valor">${formatMoney(c.valor_total)}</td>
+          <td data-label="Vitor">${formatMoney(c.valor_vitor)}</td>
+          <td data-label="Lucas">${formatMoney(c.valor_lucas)}</td>
+          <td data-label="Status">
+            <select class="status-select" data-id="${c.id}" style="padding:8px 10px;font-size:13px;">
               <option value="pendente" ${c.status === 'pendente' ? 'selected' : ''}>Pendente</option>
               <option value="pago" ${c.status === 'pago' ? 'selected' : ''}>Pago</option>
               <option value="cancelado" ${c.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
             </select>
           </td>
-          <td>
+          <td data-label="Acoes">
             <button class="link-btn" onclick="baixarPDF(${c.id})">PDF</button>
             <button class="link-btn danger" onclick="excluirContrato(${c.id})">Excluir</button>
           </td>
@@ -228,11 +247,11 @@ async function carregarRelatorio() {
     tbody.innerHTML = '';
     const tipos = Object.keys(data.por_tipo);
     if (!tipos.length) {
-      tbody.innerHTML = '<tr><td colspan="3" style="color:var(--muted)">Sem dados para o periodo selecionado.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="3">Sem dados para o periodo selecionado.</td></tr>';
     }
     tipos.forEach(tipo => {
       const t = data.por_tipo[tipo];
-      tbody.innerHTML += `<tr><td>${NOME_TIPO[tipo] || tipo}</td><td>${t.quantidade}</td><td>${formatMoney(t.valor)}</td></tr>`;
+      tbody.innerHTML += `<tr><td data-label="Servico">${NOME_TIPO[tipo] || tipo}</td><td data-label="Quantidade">${t.quantidade}</td><td data-label="Valor total">${formatMoney(t.valor)}</td></tr>`;
     });
   } catch (err) {
     toast('Erro ao gerar relatorio.', true);
