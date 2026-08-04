@@ -205,30 +205,36 @@ function desenharSecoes(doc, c) {
 }
 
 // ---------------------------------------------------------------------
-// Mini-tabela com a divisao do valor entre os socios
+// Bloco destacado com o valor total e o status do pagamento
 // ---------------------------------------------------------------------
+const STATUS_INFO = {
+    pago:       { label: 'PAGO',       cor: '#0a8a63', fundo: '#e3f7ef' },
+    pendente:   { label: 'PENDENTE',   cor: '#b8720a', fundo: '#fbf0dc' },
+    cancelado:  { label: 'CANCELADO',  cor: '#c23838', fundo: '#fbe4e4' }
+};
+
 function desenharValores(doc, c) {
     const y = doc.y + 4;
-    const colW = CONTENT_WIDTH / 3;
-    const rowH = 42;
+    const rowH = 56;
+    const statusW = 150;
+    const valorW = CONTENT_WIDTH - statusW;
 
-    doc.roundedRect(MARGIN, y, CONTENT_WIDTH, rowH, 8).fillAndStroke(COR_FUNDO_SUAVE, COR_BORDA);
-    doc.moveTo(MARGIN + colW, y).lineTo(MARGIN + colW, y + rowH).strokeColor(COR_BORDA).lineWidth(1).stroke();
-    doc.moveTo(MARGIN + colW * 2, y).lineTo(MARGIN + colW * 2, y + rowH).strokeColor(COR_BORDA).lineWidth(1).stroke();
+    const status = STATUS_INFO[c.status] || STATUS_INFO.pendente;
 
-    const celulas = [
-        { label: 'VALOR TOTAL', valor: formatMoney(c.valor_total), cor: COR_NAVY },
-        { label: 'VITOR (50%)', valor: formatMoney(c.valor_vitor), cor: COR_VITOR },
-        { label: 'LUCAS (50%)', valor: formatMoney(c.valor_lucas), cor: COR_LUCAS }
-    ];
+    // Caixa do valor total (destaque principal)
+    doc.roundedRect(MARGIN, y, valorW - 8, rowH, 8).fillAndStroke(COR_FUNDO_SUAVE, COR_BORDA);
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(COR_MUTED)
+        .text('VALOR TOTAL DO CONTRATO', MARGIN + 18, y + 14, { characterSpacing: 0.4 });
+    doc.font('Helvetica-Bold').fontSize(22).fillColor(COR_NAVY)
+        .text(formatMoney(c.valor_total), MARGIN + 18, y + 27, { width: valorW - 44 });
 
-    celulas.forEach((cel, i) => {
-        const cx = MARGIN + colW * i;
-        doc.font('Helvetica-Bold').fontSize(8).fillColor(COR_MUTED)
-            .text(cel.label, cx, y + 9, { width: colW, align: 'center', characterSpacing: 0.4 });
-        doc.font('Helvetica-Bold').fontSize(13).fillColor(cel.cor)
-            .text(cel.valor, cx, y + 21, { width: colW, align: 'center' });
-    });
+    // Caixa do status (destaque colorido)
+    const statusX = MARGIN + valorW;
+    doc.roundedRect(statusX, y, statusW, rowH, 8).fillAndStroke(status.fundo, status.cor);
+    doc.font('Helvetica-Bold').fontSize(8).fillColor(status.cor)
+        .text('STATUS', statusX, y + 14, { width: statusW, align: 'center', characterSpacing: 0.5 });
+    doc.font('Helvetica-Bold').fontSize(14).fillColor(status.cor)
+        .text(status.label, statusX, y + 30, { width: statusW, align: 'center', characterSpacing: 0.6 });
 
     doc.x = MARGIN;
     doc.y = y + rowH + 30;
