@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: cria-tech-saas
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_SSL
+        value: "true"
+      - key: PORT
+        value: "3000"

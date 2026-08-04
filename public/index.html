@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cria Tech &middot; Painel de Servicos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">CT</span>
+      <div>
+        <strong>Cria Tech</strong>
+        <small>gestao de servicos</small>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard">
+        <span class="dot"></span> Painel
+      </button>
+      <button class="nav-item" data-view="novo">
+        <span class="dot"></span> Novo contrato
+      </button>
+      <button class="nav-item" data-view="lista">
+        <span class="dot"></span> Contratos
+      </button>
+      <button class="nav-item" data-view="relatorio">
+        <span class="dot"></span> Relatorio
+      </button>
+    </nav>
+
+    <div class="split-signature">
+      <div class="split-label">DIVISAO PADRAO</div>
+      <div class="split-bar">
+        <div class="split-half vitor">VITOR<br><span>50%</span></div>
+        <div class="split-half lucas">LUCAS<br><span>50%</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <header class="topbar">
+      <h1 id="view-title">Painel</h1>
+      <button class="btn-mobile-nav" id="btnMobileNav" aria-label="menu">☰</button>
+    </header>
+
+    <!-- ---------- DASHBOARD ---------- -->
+    <section class="view" id="view-dashboard">
+      <div class="cards" id="dashCards">
+        <div class="card">
+          <span class="card-label">Total geral</span>
+          <span class="card-value" id="cardTotal">R$ 0,00</span>
+        </div>
+        <div class="card vitor-card">
+          <span class="card-label">Parte de Vitor</span>
+          <span class="card-value" id="cardVitor">R$ 0,00</span>
+        </div>
+        <div class="card lucas-card">
+          <span class="card-label">Parte de Lucas</span>
+          <span class="card-value" id="cardLucas">R$ 0,00</span>
+        </div>
+        <div class="card">
+          <span class="card-label">Contratos ativos</span>
+          <span class="card-value" id="cardQtd">0</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Ultimos contratos</h2>
+        </div>
+        <div class="table-wrap">
+          <table id="tabelaRecentes">
+            <thead>
+              <tr><th>Cliente</th><th>Servico</th><th>Valor</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- NOVO CONTRATO ---------- -->
+    <section class="view hidden" id="view-novo">
+      <div class="panel form-panel">
+        <div class="panel-head">
+          <h2>Gerar novo contrato</h2>
+          <p class="muted">Preencha os dados. O valor sera dividido automaticamente 50/50 e o PDF sera gerado.</p>
+        </div>
+
+        <form id="formContrato">
+          <div class="grid-2">
+            <label>
+              Nome do cliente *
+              <input type="text" name="cliente_nome" required placeholder="Ex: Padaria Sao Jose">
+            </label>
+            <label>
+              CPF/CNPJ
+              <input type="text" name="cliente_documento" placeholder="Opcional">
+            </label>
+          </div>
+
+          <div class="grid-2">
+            <label>
+              Contato do cliente
+              <input type="text" name="cliente_contato" placeholder="Telefone / e-mail">
+            </label>
+            <label>
+              Tipo de servico *
+              <select name="tipo_servico" required>
+                <option value="">Selecione</option>
+                <option value="site">Site</option>
+                <option value="sistema">Sistema</option>
+                <option value="designer">Designer</option>
+                <option value="midia">Midia</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Descricao / escopo do servico
+            <textarea name="descricao" rows="3" placeholder="Ex: Landing page institucional com 5 secoes e formulario de contato"></textarea>
+          </label>
+
+          <div class="grid-2">
+            <label>
+              Inicio do periodo *
+              <input type="date" name="periodo_inicio" required>
+            </label>
+            <label>
+              Fim do periodo *
+              <input type="date" name="periodo_fim" required>
+            </label>
+          </div>
+
+          <div class="grid-2">
+            <label>
+              Valor total (R$) *
+              <input type="number" name="valor_total" step="0.01" min="0" required placeholder="0,00">
+            </label>
+            <label>
+              Status
+              <select name="status">
+                <option value="pendente" selected>Pendente</option>
+                <option value="pago">Pago</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Clausulas adicionais
+            <textarea name="clausulas_extra" rows="2" placeholder="Opcional: condicoes especiais, garantia, revisao, etc."></textarea>
+          </label>
+
+          <div class="preview-split" id="previewSplit">
+            <span>Vitor recebe: <strong id="previewVitor">R$ 0,00</strong></span>
+            <span>Lucas recebe: <strong id="previewLucas">R$ 0,00</strong></span>
+          </div>
+
+          <button type="submit" class="btn-primary">Gerar contrato em PDF</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ---------- LISTA DE CONTRATOS ---------- -->
+    <section class="view hidden" id="view-lista">
+      <div class="panel">
+        <div class="panel-head filters">
+          <h2>Todos os contratos</h2>
+          <div class="filter-controls">
+            <input type="text" id="filtroBusca" placeholder="Buscar cliente...">
+            <select id="filtroTipo">
+              <option value="">Todos os servicos</option>
+              <option value="site">Site</option>
+              <option value="sistema">Sistema</option>
+              <option value="designer">Designer</option>
+              <option value="midia">Midia</option>
+            </select>
+            <select id="filtroStatus">
+              <option value="">Todos os status</option>
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="tabelaLista">
+            <thead>
+              <tr><th>Cliente</th><th>Servico</th><th>Periodo</th><th>Valor</th><th>Vitor</th><th>Lucas</th><th>Status</th><th>Acoes</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- RELATORIO ---------- -->
+    <section class="view hidden" id="view-relatorio">
+      <div class="panel">
+        <div class="panel-head filters">
+          <h2>Relatorio financeiro</h2>
+          <div class="filter-controls">
+            <label class="inline-label">De <input type="date" id="repInicio"></label>
+            <label class="inline-label">Ate <input type="date" id="repFim"></label>
+            <button class="btn-secondary" id="btnGerarRelatorio">Filtrar</button>
+          </div>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <span class="card-label">Total no periodo</span>
+            <span class="card-value" id="repTotal">R$ 0,00</span>
+          </div>
+          <div class="card vitor-card">
+            <span class="card-label">Vitor</span>
+            <span class="card-value" id="repVitor">R$ 0,00</span>
+          </div>
+          <div class="card lucas-card">
+            <span class="card-label">Lucas</span>
+            <span class="card-value" id="repLucas">R$ 0,00</span>
+          </div>
+          <div class="card">
+            <span class="card-label">Pago / Pendente</span>
+            <span class="card-value small" id="repPagoPendente">R$ 0,00 / R$ 0,00</span>
+          </div>
+        </div>
+
+        <div class="panel-head">
+          <h2>Por tipo de servico</h2>
+        </div>
+        <div class="table-wrap">
+          <table id="tabelaPorTipo">
+            <thead><tr><th>Servico</th><th>Quantidade</th><th>Valor total</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "cria-tech-saas",
+  "version": "1.0.0",
+  "description": "Sistema de gestao de servicos e contratos da Cria Tech - divisao de valores entre socios, geracao de contratos em PDF e relatorios financeiros.",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "author": "Cria Tech",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "pdfkit": "^0.15.0",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5"
+  }
+}
