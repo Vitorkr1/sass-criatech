@@ -1,4 +1,10 @@
 const API = '/api';
+const TIPOS_SERVICO = ['site', 'sistema', 'designer', 'midia'];
+const NOME_TIPO = { site: 'Site', sistema: 'Sistema', designer: 'Designer', midia: 'Midia social' };
+
+// cache local dos registros de cada servico, evita recarregar do servidor
+// toda vez que o usuario so muda um filtro de busca/status
+const SERVICE_CACHE = {};
 
 // ---------- Navegacao entre views ----------
 const navItems = document.querySelectorAll('.nav-item');
@@ -6,7 +12,14 @@ const views = document.querySelectorAll('.view');
 const viewTitle = document.getElementById('view-title');
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
-const titles = { dashboard: 'Painel', novo: 'Novo contrato', lista: 'Contratos', relatorio: 'Relatorio' };
+const titles = {
+  dashboard: 'Painel',
+  site: 'Site',
+  sistema: 'Sistema (mensal)',
+  designer: 'Designer',
+  midia: 'Midia social (mensal)',
+  relatorio: 'Relatorio'
+};
 
 function fecharMenuMobile() {
   sidebar.classList.remove('open');
@@ -19,20 +32,24 @@ function abrirMenuMobile() {
   document.body.classList.add('no-scroll');
 }
 
-navItems.forEach(btn => {
-  btn.addEventListener('click', () => {
-    navItems.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const target = btn.dataset.view;
-    views.forEach(v => v.classList.add('hidden'));
-    document.getElementById(`view-${target}`).classList.remove('hidden');
-    viewTitle.textContent = titles[target];
-    fecharMenuMobile();
+function trocarView(target) {
+  navItems.forEach(b => b.classList.toggle('active', b.dataset.view === target));
+  views.forEach(v => v.classList.add('hidden'));
+  document.getElementById(`view-${target}`).classList.remove('hidden');
+  viewTitle.textContent = titles[target];
+  fecharMenuMobile();
 
-    if (target === 'dashboard') carregarDashboard();
-    if (target === 'lista') carregarLista();
-    if (target === 'relatorio') carregarRelatorio();
-  });
+  if (target === 'dashboard') carregarDashboard();
+  else if (TIPOS_SERVICO.includes(target)) loadService(target);
+  else if (target === 'relatorio') carregarRelatorio();
+}
+
+navItems.forEach(btn => {
+  btn.addEventListener('click', () => trocarView(btn.dataset.view));
+});
+
+document.querySelectorAll('.service-card[data-goto]').forEach(card => {
+  card.addEventListener('click', () => trocarView(card.dataset.goto));
 });
 
 document.getElementById('btnMobileNav').addEventListener('click', () => {
@@ -60,9 +77,15 @@ function escapeHTML(str) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[s]));
 }
-const NOME_TIPO = { site: 'Site', sistema: 'Sistema', designer: 'Designer', midia: 'Midia' };
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+}
+function baixarPDF(id) {
+  window.open(`${API}/contratos/${id}/pdf`, '_blank');
+}
 
-// ---------- Dashboard ----------
+// ---------- Dashboard (visao geral de todos os servicos) ----------
 async function carregarDashboard() {
   try {
     const res = await fetch(`${API}/relatorio`);
@@ -73,11 +96,17 @@ async function carregarDashboard() {
     document.getElementById('cardLucas').textContent = formatMoney(data.total_lucas);
     document.getElementById('cardQtd').textContent = data.quantidade_contratos;
 
+    TIPOS_SERVICO.forEach(tipo => {
+      const info = data.por_tipo[tipo];
+      const el = document.getElementById(`cardServico-${tipo}`);
+      if (el) el.textContent = formatMoney(info ? info.valor : 0);
+    });
+
     const tbody = document.querySelector('#tabelaRecentes tbody');
     tbody.innerHTML = '';
     const recentes = data.contratos.slice(0, 8);
     if (!recentes.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Nenhum contrato cadastrado ainda.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Nenhum registro cadastrado ainda.</td></tr>';
     }
     recentes.forEach(c => {
       tbody.innerHTML += `
@@ -94,138 +123,167 @@ async function carregarDashboard() {
   }
 }
 
-// ---------- Novo contrato ----------
-const form = document.getElementById('formContrato');
-const inputValor = form.querySelector('[name="valor_total"]');
-
-function atualizarPreview() {
-  const v = Number(inputValor.value || 0);
-  const metade = Math.round((v / 2) * 100) / 100;
-  document.getElementById('previewVitor').textContent = formatMoney(metade);
-  document.getElementById('previewLucas').textContent = formatMoney(v - metade);
+// ---------- Carregamento por servico (aba propria) ----------
+async function loadService(tipo) {
+  try {
+    const res = await fetch(`${API}/contratos?tipo_servico=${tipo}`);
+    const rows = await res.json();
+    SERVICE_CACHE[tipo] = rows;
+    renderServiceCards(tipo, rows);
+    renderServiceTable(tipo);
+  } catch (err) {
+    toast('Erro ao carregar dados do servico.', true);
+  }
 }
-inputValor.addEventListener('input', atualizarPreview);
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const dados = Object.fromEntries(new FormData(form).entries());
+function renderServiceCards(tipo, rows) {
+  const total = rows.reduce((a, r) => a + Number(r.valor_total), 0);
+  const pago = rows.filter(r => r.status === 'pago').reduce((a, r) => a + Number(r.valor_total), 0);
+  const pendente = rows.filter(r => r.status === 'pendente').reduce((a, r) => a + Number(r.valor_total), 0);
 
-  if (new Date(dados.periodo_fim) < new Date(dados.periodo_inicio)) {
-    toast('A data de fim deve ser depois da data de inicio.', true);
+  document.getElementById(`card-${tipo}-total`).textContent = formatMoney(total);
+  document.getElementById(`card-${tipo}-pago`).textContent = formatMoney(pago);
+  document.getElementById(`card-${tipo}-pendente`).textContent = formatMoney(pendente);
+  document.getElementById(`card-${tipo}-qtd`).textContent = rows.length;
+}
+
+function renderServiceTable(tipo) {
+  const view = document.getElementById(`view-${tipo}`);
+  const recorrente = view.dataset.recorrente === 'true';
+  const busca = view.querySelector('.filtro-busca').value.trim().toLowerCase();
+  const status = view.querySelector('.filtro-status').value;
+
+  let rows = SERVICE_CACHE[tipo] || [];
+  if (busca) rows = rows.filter(r => r.cliente_nome.toLowerCase().includes(busca));
+  if (status) rows = rows.filter(r => r.status === status);
+
+  const tbody = document.querySelector(`#tabela-${tipo} tbody`);
+  tbody.innerHTML = '';
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Nenhum registro encontrado.</td></tr>';
     return;
   }
 
-  const btn = form.querySelector('button[type="submit"]');
-  btn.disabled = true;
-  btn.textContent = 'Gerando...';
+  rows.forEach(c => {
+    const colPeriodo = recorrente
+      ? formatDate(c.periodo_inicio)
+      : `${formatDate(c.periodo_inicio)} - ${formatDate(c.periodo_fim)}`;
 
-  try {
-    const res = await fetch(`${API}/contratos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
+    tbody.innerHTML += `
+      <tr>
+        <td data-label="Cliente">${escapeHTML(c.cliente_nome)}</td>
+        <td data-label="${recorrente ? 'Data pagamento' : 'Periodo'}">${colPeriodo}</td>
+        <td data-label="Valor">${formatMoney(c.valor_total)}</td>
+        <td data-label="Vitor">${formatMoney(c.valor_vitor)}</td>
+        <td data-label="Lucas">${formatMoney(c.valor_lucas)}</td>
+        <td data-label="Status">
+          <select class="status-select" data-id="${c.id}" data-tipo="${tipo}" style="padding:8px 10px;font-size:13px;">
+            <option value="pendente" ${c.status === 'pendente' ? 'selected' : ''}>Pendente</option>
+            <option value="pago" ${c.status === 'pago' ? 'selected' : ''}>Pago</option>
+            <option value="cancelado" ${c.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+          </select>
+        </td>
+        <td data-label="Acoes">
+          <button class="link-btn" onclick="baixarPDF(${c.id})">PDF</button>
+          <button class="link-btn danger" onclick="excluirRegistro(${c.id}, '${tipo}')">Excluir</button>
+        </td>
+      </tr>`;
+  });
+
+  tbody.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      await fetch(`${API}/contratos/${sel.dataset.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: sel.value })
+      });
+      toast('Status atualizado.');
+      loadService(sel.dataset.tipo);
     });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.erro || 'Erro ao gerar contrato.');
-
-    toast(`Contrato de ${result.cliente_nome} gerado com sucesso!`);
-    form.reset();
-    atualizarPreview();
-    baixarPDF(result.id);
-  } catch (err) {
-    toast(err.message, true);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Gerar contrato em PDF';
-  }
-});
-
-function baixarPDF(id) {
-  window.open(`${API}/contratos/${id}/pdf`, '_blank');
+  });
 }
 
-// ---------- Lista de contratos ----------
-async function carregarLista() {
-  const busca = document.getElementById('filtroBusca').value;
-  const tipo = document.getElementById('filtroTipo').value;
-  const status = document.getElementById('filtroStatus').value;
-
-  const params = new URLSearchParams();
-  if (busca) params.set('busca', busca);
-  if (tipo) params.set('tipo_servico', tipo);
-  if (status) params.set('status', status);
-
+async function excluirRegistro(id, tipo) {
+  if (!confirm('Tem certeza que deseja excluir este registro? Essa acao nao pode ser desfeita.')) return;
   try {
-    const res = await fetch(`${API}/contratos?${params}`);
-    const rows = await res.json();
-    const tbody = document.querySelector('#tabelaLista tbody');
-    tbody.innerHTML = '';
+    await fetch(`${API}/contratos/${id}`, { method: 'DELETE' });
+    toast('Registro excluido.');
+    loadService(tipo);
+  } catch (err) {
+    toast('Erro ao excluir registro.', true);
+  }
+}
 
-    if (!rows.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">Nenhum contrato encontrado.</td></tr>';
+// filtros de busca/status de cada aba de servico
+TIPOS_SERVICO.forEach(tipo => {
+  const view = document.getElementById(`view-${tipo}`);
+  view.querySelector('.filtro-busca').addEventListener('input', debounce(() => renderServiceTable(tipo), 300));
+  view.querySelector('.filtro-status').addEventListener('change', () => renderServiceTable(tipo));
+});
+
+// ---------- Formularios de cada servico (site, sistema, designer, midia) ----------
+document.querySelectorAll('.form-servico').forEach(form => {
+  const tipo = form.dataset.tipo;
+  const recorrente = form.dataset.recorrente === 'true';
+  const inputValor = form.querySelector('[name="valor_total"]');
+  const previewVitor = form.querySelector('.preview-vitor');
+  const previewLucas = form.querySelector('.preview-lucas');
+
+  function atualizarPreview() {
+    const v = Number(inputValor.value || 0);
+    const metade = Math.round((v / 2) * 100) / 100;
+    previewVitor.textContent = formatMoney(metade);
+    previewLucas.textContent = formatMoney(v - metade);
+  }
+  inputValor.addEventListener('input', atualizarPreview);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const dados = Object.fromEntries(new FormData(form).entries());
+    dados.tipo_servico = tipo;
+
+    if (recorrente) {
+      // servico recorrente: o usuario informa so a data de pagamento,
+      // o fim do periodo (fechamento do mes) e calculado automaticamente
+      const inicio = new Date(`${dados.periodo_inicio}T00:00:00`);
+      const fim = new Date(inicio);
+      fim.setMonth(fim.getMonth() + 1);
+      dados.periodo_fim = fim.toISOString().slice(0, 10);
+    } else if (new Date(dados.periodo_fim) < new Date(dados.periodo_inicio)) {
+      toast('A data de fim deve ser depois da data de inicio.', true);
       return;
     }
 
-    rows.forEach(c => {
-      tbody.innerHTML += `
-        <tr>
-          <td data-label="Cliente">${escapeHTML(c.cliente_nome)}</td>
-          <td data-label="Servico">${NOME_TIPO[c.tipo_servico] || c.tipo_servico}</td>
-          <td data-label="Periodo">${formatDate(c.periodo_inicio)} - ${formatDate(c.periodo_fim)}</td>
-          <td data-label="Valor">${formatMoney(c.valor_total)}</td>
-          <td data-label="Vitor">${formatMoney(c.valor_vitor)}</td>
-          <td data-label="Lucas">${formatMoney(c.valor_lucas)}</td>
-          <td data-label="Status">
-            <select class="status-select" data-id="${c.id}" style="padding:8px 10px;font-size:13px;">
-              <option value="pendente" ${c.status === 'pendente' ? 'selected' : ''}>Pendente</option>
-              <option value="pago" ${c.status === 'pago' ? 'selected' : ''}>Pago</option>
-              <option value="cancelado" ${c.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-            </select>
-          </td>
-          <td data-label="Acoes">
-            <button class="link-btn" onclick="baixarPDF(${c.id})">PDF</button>
-            <button class="link-btn danger" onclick="excluirContrato(${c.id})">Excluir</button>
-          </td>
-        </tr>`;
-    });
+    const btn = form.querySelector('button[type="submit"]');
+    const textoOriginal = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
 
-    document.querySelectorAll('.status-select').forEach(sel => {
-      sel.addEventListener('change', async () => {
-        await fetch(`${API}/contratos/${sel.dataset.id}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: sel.value })
-        });
-        toast('Status atualizado.');
+    try {
+      const res = await fetch(`${API}/contratos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
       });
-    });
-  } catch (err) {
-    toast('Erro ao carregar contratos.', true);
-  }
-}
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.erro || 'Erro ao salvar registro.');
 
-async function excluirContrato(id) {
-  if (!confirm('Tem certeza que deseja excluir este contrato? Essa acao nao pode ser desfeita.')) return;
-  try {
-    await fetch(`${API}/contratos/${id}`, { method: 'DELETE' });
-    toast('Contrato excluido.');
-    carregarLista();
-    carregarDashboard();
-  } catch (err) {
-    toast('Erro ao excluir contrato.', true);
-  }
-}
+      toast(`${NOME_TIPO[tipo]} de ${result.cliente_nome} salvo com sucesso!`);
+      form.reset();
+      atualizarPreview();
+      baixarPDF(result.id);
+      loadService(tipo);
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+    }
+  });
+});
 
-document.getElementById('filtroBusca').addEventListener('input', debounce(carregarLista, 350));
-document.getElementById('filtroTipo').addEventListener('change', carregarLista);
-document.getElementById('filtroStatus').addEventListener('change', carregarLista);
-
-function debounce(fn, delay) {
-  let timer;
-  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
-}
-
-// ---------- Relatorio ----------
+// ---------- Relatorio financeiro geral ----------
 async function carregarRelatorio() {
   const inicio = document.getElementById('repInicio').value;
   const fim = document.getElementById('repFim').value;
