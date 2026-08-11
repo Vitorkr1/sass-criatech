@@ -32,14 +32,30 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
         Painel
       </button>
-      <button class="nav-item" data-view="novo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M12 12v6M9 15h6"/></svg>
-        Novo contrato
+
+      <div class="nav-group-label">Servicos</div>
+
+      <button class="nav-item" data-view="site">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg>
+        Site
       </button>
-      <button class="nav-item" data-view="lista">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
-        Contratos
+      <button class="nav-item" data-view="sistema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>
+        Sistema
+        <span class="nav-tag">mensal</span>
       </button>
+      <button class="nav-item" data-view="designer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+        Designer
+      </button>
+      <button class="nav-item" data-view="midia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11v2a1 1 0 0 0 1 1h2l4 4V6L7 10H5a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        Midia social
+        <span class="nav-tag">mensal</span>
+      </button>
+
+      <div class="nav-group-label">Geral</div>
+
       <button class="nav-item" data-view="relatorio">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
         Relatorio
@@ -94,9 +110,32 @@
         </div>
       </div>
 
+      <div class="panel-head">
+        <h2>Total por servico</h2>
+        <p class="muted">Clique em um servico para abrir a aba completa.</p>
+      </div>
+      <div class="cards" id="dashServiceCards">
+        <div class="card service-card" data-goto="site">
+          <span class="card-label">Site</span>
+          <span class="card-value" id="cardServico-site">R$ 0,00</span>
+        </div>
+        <div class="card service-card" data-goto="sistema">
+          <span class="card-label">Sistema <em>mensal</em></span>
+          <span class="card-value" id="cardServico-sistema">R$ 0,00</span>
+        </div>
+        <div class="card service-card" data-goto="designer">
+          <span class="card-label">Designer</span>
+          <span class="card-value" id="cardServico-designer">R$ 0,00</span>
+        </div>
+        <div class="card service-card" data-goto="midia">
+          <span class="card-label">Midia social <em>mensal</em></span>
+          <span class="card-value" id="cardServico-midia">R$ 0,00</span>
+        </div>
+      </div>
+
       <div class="panel">
         <div class="panel-head">
-          <h2>Ultimos contratos</h2>
+          <h2>Ultimos lancamentos (todos os servicos)</h2>
         </div>
         <div class="table-wrap">
           <table id="tabelaRecentes" class="stack-mobile">
@@ -109,66 +148,28 @@
       </div>
     </section>
 
-    <!-- ---------- NOVO CONTRATO ---------- -->
-    <section class="view hidden" id="view-novo">
+    <!-- ---------- SITE (projeto, historico completo) ---------- -->
+    <section class="view hidden" id="view-site" data-tipo="site" data-recorrente="false">
+      <div class="cards" id="cards-site">
+        <div class="card"><span class="card-label">Total em sites</span><span class="card-value" id="card-site-total">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pago</span><span class="card-value" id="card-site-pago">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pendente</span><span class="card-value" id="card-site-pendente">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Sites cadastrados</span><span class="card-value" id="card-site-qtd">0</span></div>
+      </div>
+
       <div class="panel form-panel">
         <div class="panel-head">
-          <h2>Gerar novo contrato</h2>
-          <p class="muted">Preencha os dados. O valor sera dividido automaticamente 50/50 e o PDF sera gerado.</p>
+          <h2>Novo site</h2>
+          <p class="muted">Cadastre um site alugado/desenvolvido. O valor sera dividido 50/50 e o PDF gerado na hora.</p>
         </div>
-
-        <form id="formContrato">
+        <form class="form-servico" id="form-site" data-tipo="site">
           <div class="grid-2">
-            <label>
-              Nome do cliente *
-              <input type="text" name="cliente_nome" required placeholder="Ex: Padaria Sao Jose">
-            </label>
-            <label>
-              CPF/CNPJ
-              <input type="text" name="cliente_documento" placeholder="Opcional">
-            </label>
+            <label>Nome do cliente *<input type="text" name="cliente_nome" required placeholder="Ex: Padaria Sao Jose"></label>
+            <label>CPF/CNPJ<input type="text" name="cliente_documento" placeholder="Opcional"></label>
           </div>
-
           <div class="grid-2">
-            <label>
-              Contato do cliente
-              <input type="text" name="cliente_contato" placeholder="Telefone / e-mail">
-            </label>
-            <label>
-              Tipo de servico *
-              <select name="tipo_servico" required>
-                <option value="">Selecione</option>
-                <option value="site">Site</option>
-                <option value="sistema">Sistema</option>
-                <option value="designer">Designer</option>
-                <option value="midia">Midia</option>
-              </select>
-            </label>
-          </div>
-
-          <label>
-            Descricao / escopo do servico
-            <textarea name="descricao" rows="3" placeholder="Ex: Landing page institucional com 5 secoes e formulario de contato"></textarea>
-          </label>
-
-          <div class="grid-2">
-            <label>
-              Inicio do periodo *
-              <input type="date" name="periodo_inicio" required>
-            </label>
-            <label>
-              Fim do periodo *
-              <input type="date" name="periodo_fim" required>
-            </label>
-          </div>
-
-          <div class="grid-2">
-            <label>
-              Valor total (R$) *
-              <input type="number" name="valor_total" step="0.01" min="0" required placeholder="0,00">
-            </label>
-            <label>
-              Status
+            <label>Contato do cliente<input type="text" name="cliente_contato" placeholder="Telefone / e-mail"></label>
+            <label>Status
               <select name="status">
                 <option value="pendente" selected>Pendente</option>
                 <option value="pago">Pago</option>
@@ -176,37 +177,29 @@
               </select>
             </label>
           </div>
-
-          <label>
-            Clausulas adicionais
-            <textarea name="clausulas_extra" rows="2" placeholder="Opcional: condicoes especiais, garantia, revisao, etc."></textarea>
-          </label>
-
-          <div class="preview-split" id="previewSplit">
-            <span>Vitor recebe: <strong id="previewVitor">R$ 0,00</strong></span>
-            <span>Lucas recebe: <strong id="previewLucas">R$ 0,00</strong></span>
+          <label>Descricao / escopo do site<textarea name="descricao" rows="3" placeholder="Ex: Landing page institucional com 5 secoes e formulario de contato"></textarea></label>
+          <div class="grid-2">
+            <label>Inicio do periodo (locacao/desenvolvimento) *<input type="date" name="periodo_inicio" required></label>
+            <label>Fim do periodo *<input type="date" name="periodo_fim" required></label>
           </div>
-
-          <button type="submit" class="btn-primary">Gerar contrato em PDF</button>
+          <div class="grid-2">
+            <label>Valor total (R$) *<input type="number" name="valor_total" step="0.01" min="0" required placeholder="0,00"></label>
+            <label>Clausulas adicionais<input type="text" name="clausulas_extra" placeholder="Opcional"></label>
+          </div>
+          <div class="preview-split">
+            <span>Vitor recebe: <strong class="preview-vitor">R$ 0,00</strong></span>
+            <span>Lucas recebe: <strong class="preview-lucas">R$ 0,00</strong></span>
+          </div>
+          <button type="submit" class="btn-primary">Gerar contrato de site em PDF</button>
         </form>
       </div>
-    </section>
 
-    <!-- ---------- LISTA DE CONTRATOS ---------- -->
-    <section class="view hidden" id="view-lista">
       <div class="panel">
         <div class="panel-head filters">
-          <h2>Todos os contratos</h2>
+          <h2>Historico de sites</h2>
           <div class="filter-controls">
-            <input type="text" id="filtroBusca" placeholder="Buscar cliente...">
-            <select id="filtroTipo">
-              <option value="">Todos os servicos</option>
-              <option value="site">Site</option>
-              <option value="sistema">Sistema</option>
-              <option value="designer">Designer</option>
-              <option value="midia">Midia</option>
-            </select>
-            <select id="filtroStatus">
+            <input type="text" class="filtro-busca" placeholder="Buscar cliente...">
+            <select class="filtro-status">
               <option value="">Todos os status</option>
               <option value="pendente">Pendente</option>
               <option value="pago">Pago</option>
@@ -215,21 +208,213 @@
           </div>
         </div>
         <div class="table-wrap">
-          <table id="tabelaLista" class="stack-mobile">
-            <thead>
-              <tr><th>Cliente</th><th>Servico</th><th>Periodo</th><th>Valor</th><th>Vitor</th><th>Lucas</th><th>Status</th><th>Acoes</th></tr>
-            </thead>
+          <table id="tabela-site" class="stack-mobile">
+            <thead><tr><th>Cliente</th><th>Periodo</th><th>Valor</th><th>Vitor</th><th>Lucas</th><th>Status</th><th>Acoes</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- ---------- RELATORIO ---------- -->
+    <!-- ---------- SISTEMA (recorrente mensal) ---------- -->
+    <section class="view hidden" id="view-sistema" data-tipo="sistema" data-recorrente="true">
+      <div class="cards" id="cards-sistema">
+        <div class="card"><span class="card-label">Total recebido</span><span class="card-value" id="card-sistema-total">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pago</span><span class="card-value" id="card-sistema-pago">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pendente</span><span class="card-value" id="card-sistema-pendente">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pagamentos lancados</span><span class="card-value" id="card-sistema-qtd">0</span></div>
+      </div>
+
+      <div class="panel form-panel">
+        <div class="panel-head">
+          <h2>Registrar mensalidade do sistema</h2>
+          <p class="muted">Servico recorrente, cobranca mensal. Lance aqui o pagamento do mes com a data de pagamento.</p>
+        </div>
+        <form class="form-servico" id="form-sistema" data-tipo="sistema" data-recorrente="true">
+          <div class="grid-2">
+            <label>Nome do cliente *<input type="text" name="cliente_nome" required placeholder="Ex: Padaria Sao Jose"></label>
+            <label>Contato do cliente<input type="text" name="cliente_contato" placeholder="Telefone / e-mail"></label>
+          </div>
+          <div class="grid-2">
+            <label>Data de pagamento *<input type="date" name="periodo_inicio" required></label>
+            <label>Valor mensal (R$) *<input type="number" name="valor_total" step="0.01" min="0" required placeholder="0,00"></label>
+          </div>
+          <div class="grid-2">
+            <label>Status
+              <select name="status">
+                <option value="pago" selected>Pago</option>
+                <option value="pendente">Pendente</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </label>
+            <label>Sistema / observacao<input type="text" name="descricao" placeholder="Ex: Sistema de pedidos - mensalidade"></label>
+          </div>
+          <div class="preview-split">
+            <span>Vitor recebe: <strong class="preview-vitor">R$ 0,00</strong></span>
+            <span>Lucas recebe: <strong class="preview-lucas">R$ 0,00</strong></span>
+          </div>
+          <button type="submit" class="btn-primary">Registrar mes e gerar comprovante em PDF</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head filters">
+          <h2>Historico de mensalidades - Sistema</h2>
+          <div class="filter-controls">
+            <input type="text" class="filtro-busca" placeholder="Buscar cliente...">
+            <select class="filtro-status">
+              <option value="">Todos os status</option>
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="tabela-sistema" class="stack-mobile">
+            <thead><tr><th>Cliente</th><th>Data pagamento</th><th>Valor</th><th>Vitor</th><th>Lucas</th><th>Status</th><th>Acoes</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- DESIGNER (projeto) ---------- -->
+    <section class="view hidden" id="view-designer" data-tipo="designer" data-recorrente="false">
+      <div class="cards" id="cards-designer">
+        <div class="card"><span class="card-label">Total em design</span><span class="card-value" id="card-designer-total">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pago</span><span class="card-value" id="card-designer-pago">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pendente</span><span class="card-value" id="card-designer-pendente">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Trabalhos cadastrados</span><span class="card-value" id="card-designer-qtd">0</span></div>
+      </div>
+
+      <div class="panel form-panel">
+        <div class="panel-head">
+          <h2>Novo trabalho de design</h2>
+          <p class="muted">Cadastre um servico de design/identidade visual. O valor sera dividido 50/50.</p>
+        </div>
+        <form class="form-servico" id="form-designer" data-tipo="designer">
+          <div class="grid-2">
+            <label>Nome do cliente *<input type="text" name="cliente_nome" required placeholder="Ex: Padaria Sao Jose"></label>
+            <label>CPF/CNPJ<input type="text" name="cliente_documento" placeholder="Opcional"></label>
+          </div>
+          <div class="grid-2">
+            <label>Contato do cliente<input type="text" name="cliente_contato" placeholder="Telefone / e-mail"></label>
+            <label>Status
+              <select name="status">
+                <option value="pendente" selected>Pendente</option>
+                <option value="pago">Pago</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </label>
+          </div>
+          <label>Descricao / escopo do trabalho<textarea name="descricao" rows="3" placeholder="Ex: Logotipo + manual de marca"></textarea></label>
+          <div class="grid-2">
+            <label>Inicio do periodo *<input type="date" name="periodo_inicio" required></label>
+            <label>Fim do periodo *<input type="date" name="periodo_fim" required></label>
+          </div>
+          <div class="grid-2">
+            <label>Valor total (R$) *<input type="number" name="valor_total" step="0.01" min="0" required placeholder="0,00"></label>
+            <label>Clausulas adicionais<input type="text" name="clausulas_extra" placeholder="Opcional"></label>
+          </div>
+          <div class="preview-split">
+            <span>Vitor recebe: <strong class="preview-vitor">R$ 0,00</strong></span>
+            <span>Lucas recebe: <strong class="preview-lucas">R$ 0,00</strong></span>
+          </div>
+          <button type="submit" class="btn-primary">Gerar contrato de design em PDF</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head filters">
+          <h2>Historico de design</h2>
+          <div class="filter-controls">
+            <input type="text" class="filtro-busca" placeholder="Buscar cliente...">
+            <select class="filtro-status">
+              <option value="">Todos os status</option>
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="tabela-designer" class="stack-mobile">
+            <thead><tr><th>Cliente</th><th>Periodo</th><th>Valor</th><th>Vitor</th><th>Lucas</th><th>Status</th><th>Acoes</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- MIDIA SOCIAL (recorrente mensal) ---------- -->
+    <section class="view hidden" id="view-midia" data-tipo="midia" data-recorrente="true">
+      <div class="cards" id="cards-midia">
+        <div class="card"><span class="card-label">Total recebido</span><span class="card-value" id="card-midia-total">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pago</span><span class="card-value" id="card-midia-pago">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pendente</span><span class="card-value" id="card-midia-pendente">R$ 0,00</span></div>
+        <div class="card"><span class="card-label">Pagamentos lancados</span><span class="card-value" id="card-midia-qtd">0</span></div>
+      </div>
+
+      <div class="panel form-panel">
+        <div class="panel-head">
+          <h2>Registrar mensalidade de midias sociais</h2>
+          <p class="muted">Servico recorrente, cobranca mensal. Lance aqui o pagamento do mes com a data de pagamento.</p>
+        </div>
+        <form class="form-servico" id="form-midia" data-tipo="midia" data-recorrente="true">
+          <div class="grid-2">
+            <label>Nome do cliente *<input type="text" name="cliente_nome" required placeholder="Ex: Padaria Sao Jose"></label>
+            <label>Contato do cliente<input type="text" name="cliente_contato" placeholder="Telefone / e-mail"></label>
+          </div>
+          <div class="grid-2">
+            <label>Data de pagamento *<input type="date" name="periodo_inicio" required></label>
+            <label>Valor mensal (R$) *<input type="number" name="valor_total" step="0.01" min="0" required placeholder="0,00"></label>
+          </div>
+          <div class="grid-2">
+            <label>Status
+              <select name="status">
+                <option value="pago" selected>Pago</option>
+                <option value="pendente">Pendente</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </label>
+            <label>Observacao<input type="text" name="descricao" placeholder="Ex: Gestao de Instagram - mensalidade"></label>
+          </div>
+          <div class="preview-split">
+            <span>Vitor recebe: <strong class="preview-vitor">R$ 0,00</strong></span>
+            <span>Lucas recebe: <strong class="preview-lucas">R$ 0,00</strong></span>
+          </div>
+          <button type="submit" class="btn-primary">Registrar mes e gerar comprovante em PDF</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head filters">
+          <h2>Historico de mensalidades - Midia social</h2>
+          <div class="filter-controls">
+            <input type="text" class="filtro-busca" placeholder="Buscar cliente...">
+            <select class="filtro-status">
+              <option value="">Todos os status</option>
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="tabela-midia" class="stack-mobile">
+            <thead><tr><th>Cliente</th><th>Data pagamento</th><th>Valor</th><th>Vitor</th><th>Lucas</th><th>Status</th><th>Acoes</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- RELATORIO GERAL ---------- -->
     <section class="view hidden" id="view-relatorio">
       <div class="panel">
         <div class="panel-head filters">
-          <h2>Relatorio financeiro</h2>
+          <h2>Relatorio financeiro geral</h2>
           <div class="filter-controls">
             <label class="inline-label">De <input type="date" id="repInicio"></label>
             <label class="inline-label">Ate <input type="date" id="repFim"></label>
